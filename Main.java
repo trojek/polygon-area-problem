@@ -67,10 +67,10 @@ public class Main {
 		conn.close();
 		
 		// x coordinates
-		int[] xs = {3, 5, -1, 8, -6, 23, 4};
+		int[] xs = {-3, -1, 6, 3, -4};
 
 		// y coordinates
-		int[] ys = {9, 2, -4, 3, 90, 3, -11};
+		int[] ys = {-2, 4, 1, 10, 9};
 
 		// find the convex hull
 		List<Point> convexHull = GrahamScan.getConvexHull(xs, ys);
@@ -78,6 +78,16 @@ public class Main {
 		for(java.awt.Point p : convexHull) {
 		    System.out.println(p);
 		}
+		
+		List<Point> testowe = new ArrayList<Point>();
+		testowe.add(new Point(0, 0));
+		testowe.add(new Point(2, 0));
+		testowe.add(new Point(3, 1));
+		testowe.add(new Point(2, 2));
+		testowe.add(new Point(0, 2));
+
+		
+		System.out.println(Plain.countPolygonSurface(testowe));
 
 
 	}
