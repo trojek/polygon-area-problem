@@ -72,13 +72,17 @@ public class Main {
 		// close db connection
 		conn.close();
 
+		float[] surfaceOfPolygons = new float[numberOfPolygons];
+		
 		for (int i = 0; i < numberOfPolygons; i++) {
 			// find the convex hull
 			List<Point2D.Float> convexHull = GrahamScan.getConvexHull(
 					SetOfPointsX[i], SetOfPointsY[i]);
-			System.out.println(Plain.countPolygonSurface(convexHull));
-
+			surfaceOfPolygons[i]= Plain.countPolygonSurface(convexHull);
 		}
+
+		Arrays.sort(surfaceOfPolygons);
+		System.out.printf("%.5f", surfaceOfPolygons[numberOfPolygons-1]);
 
 	}
 
