@@ -1,9 +1,9 @@
-import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.*;
 
 public class Plain {
 
-	public static float countPolygonSurface(List<Point> points) {
+	public static float countPolygonSurface(List<Point2D.Float> points) {
 
 		float surface = 0, surface_part1 = 0, surface_part2 = 0;
 

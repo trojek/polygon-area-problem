@@ -1,4 +1,5 @@
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -35,9 +36,10 @@ public class Main {
 		if (nopfmp.next()){
 			numberOfPointsPerMaxPolygon = nopfmp.getInt(1);
 		}
-		
-				
-		float[][][] SetOfPoints = new float[numberOfPolygons][numberOfPointsPerMaxPolygon][2];
+						
+		float[][] SetOfPointsX = new float[numberOfPolygons][numberOfPointsPerMaxPolygon];
+		float[][] SetOfPointsY = new float[numberOfPolygons][numberOfPointsPerMaxPolygon];
+
 		float[] functionZ = new float[numberOfPolygons];
 		
 		// select unique z
@@ -49,42 +51,38 @@ public class Main {
 			counter++;
 		}
 		
-		int i = 0;
+		int numberOfPolygon = 0;
 		
 		//Save 
 		for(Float x: functionZ) {
-			ResultSet listOfPoints = st.executeQuery("SELECT x,y FROM Ftable WHERE CAST(z AS DECIMAL) = CAST("+ x +"  AS DECIMAL)");
+			ResultSet listOfPoints = st.executeQuery("SELECT x,y FROM Ftable WHERE CAST(z AS DECIMAL(5,2)) = CAST("+ x +"  AS DECIMAL(5,2))");
 			int j = 0;
 			while (listOfPoints.next()){
-				SetOfPoints[i][j][0]=listOfPoints.getFloat(1);
-				SetOfPoints[i][j][1]=listOfPoints.getFloat(2);
+				SetOfPointsX[numberOfPolygon][j]=listOfPoints.getFloat(1);
+				SetOfPointsY[numberOfPolygon][j]=listOfPoints.getFloat(2);
 
 				j++;
 			}
-			i++;
+			numberOfPolygon++;
 		}
 		// close db connection
 		conn.close();
 		
-		// x coordinates
-		int[] xs = {-3, -1, 6, 3, -4};
-
-		// y coordinates
-		int[] ys = {-2, 4, 1, 10, 9};
-
 		// find the convex hull
-		List<Point> convexHull = GrahamScan.getConvexHull(xs, ys);
+		List<Point2D.Float> convexHull = GrahamScan.getConvexHull(SetOfPointsX[0], SetOfPointsY[0]);
 
-		for(java.awt.Point p : convexHull) {
+		for(java.awt.geom.Point2D p : convexHull) {
 		    System.out.println(p);
 		}
 		
-		List<Point> testowe = new ArrayList<Point>();
-		testowe.add(new Point(0, 0));
-		testowe.add(new Point(2, 0));
-		testowe.add(new Point(3, 1));
-		testowe.add(new Point(2, 2));
-		testowe.add(new Point(0, 2));
+		for(int i =0;i<numberOfPolygons;i++){}
+		
+		List<Point2D.Float> testowe = new ArrayList<Point2D.Float>();
+		testowe.add(new Point2D.Float(0, 0));
+		testowe.add(new Point2D.Float(2, 0));
+		testowe.add(new Point2D.Float(3, 1));
+		testowe.add(new Point2D.Float(2, 2));
+		testowe.add(new Point2D.Float(0, 2));
 
 		
 		System.out.println(Plain.countPolygonSurface(testowe));

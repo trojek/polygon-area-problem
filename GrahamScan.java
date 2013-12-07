@@ -23,7 +23,7 @@
 * OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.*;
 
 /**
@@ -42,18 +42,18 @@ public final class GrahamScan {
 * @param points the list of points.
 * @return true iff all points in <code>points</code> are collinear.
 */
-    protected static boolean areAllCollinear(List<Point> points) {
+    protected static boolean areAllCollinear(List<Point2D.Float> points) {
 
         if(points.size() < 2) {
             return true;
         }
 
-        final Point a = points.get(0);
-        final Point b = points.get(1);
+        final Point2D.Float a = points.get(0);
+        final Point2D.Float b = points.get(1);
 
         for(int i = 2; i < points.size(); i++) {
 
-            Point c = points.get(i);
+        	Point2D.Float c = points.get(i);
 
             if(getTurn(a, b, c) != Turn.COLLINEAR) {
                 return false;
@@ -77,16 +77,16 @@ public final class GrahamScan {
 * are collinear or if there are less than
 * 3 unique points present.
 */
-    public static List<Point> getConvexHull(int[] xs, int[] ys) throws IllegalArgumentException {
+    public static List<Point2D.Float> getConvexHull(float[] xs, float[] ys) throws IllegalArgumentException {
 
         if(xs.length != ys.length) {
             throw new IllegalArgumentException("xs and ys don't have the same size");
         }
 
-        List<Point> points = new ArrayList<Point>();
+        List<Point2D.Float> points = new ArrayList<Point2D.Float>();
 
         for(int i = 0; i < xs.length; i++) {
-            points.add(new Point(xs[i], ys[i]));
+            points.add(new Point2D.Float(xs[i], ys[i]));
         }
 
         return getConvexHull(points);
@@ -104,9 +104,9 @@ public final class GrahamScan {
 * @throws IllegalArgumentException if all points are collinear or if there
 * are less than 3 unique points present.
 */
-    public static List<Point> getConvexHull(List<Point> points) throws IllegalArgumentException {
+    public static List<Point2D.Float> getConvexHull(List<Point2D.Float> points) throws IllegalArgumentException {
 
-        List<Point> sorted = new ArrayList<Point>(getSortedPointSet(points));
+        List<Point2D.Float> sorted = new ArrayList<Point2D.Float>(getSortedPointSet(points));
 
         if(sorted.size() < 3) {
             throw new IllegalArgumentException("can only create a convex hull of 3 or more unique points");
@@ -116,15 +116,15 @@ public final class GrahamScan {
             throw new IllegalArgumentException("cannot create a convex hull from collinear points");
         }
 
-        Stack<Point> stack = new Stack<Point>();
+        Stack<Point2D.Float> stack = new Stack<Point2D.Float>();
         stack.push(sorted.get(0));
         stack.push(sorted.get(1));
 
         for (int i = 2; i < sorted.size(); i++) {
 
-            Point head = sorted.get(i);
-            Point middle = stack.pop();
-            Point tail = stack.peek();
+        	Point2D.Float head = sorted.get(i);
+        	Point2D.Float middle = stack.pop();
+        	Point2D.Float tail = stack.peek();
 
             Turn turn = getTurn(tail, middle, head);
 
@@ -145,7 +145,7 @@ public final class GrahamScan {
         // close the hull
         stack.push(sorted.get(0));
 
-        return new ArrayList<Point>(stack);
+        return new ArrayList<Point2D.Float>(stack);
     }
 
     /**
@@ -157,13 +157,13 @@ public final class GrahamScan {
 * 1 such point exists, the one with the lowest x coordinate
 * is returned.
 */
-    protected static Point getLowestPoint(List<Point> points) {
+    protected static Point2D.Float getLowestPoint(List<Point2D.Float> points) {
 
-        Point lowest = points.get(0);
+        Point2D.Float lowest = points.get(0);
 
         for(int i = 1; i < points.size(); i++) {
 
-            Point temp = points.get(i);
+        	Point2D.Float temp = points.get(i);
 
             if(temp.y < lowest.y || (temp.y == lowest.y && temp.x < lowest.x)) {
                 lowest = temp;
@@ -184,13 +184,13 @@ public final class GrahamScan {
 * @return a sorted set of points from the list <code>points</code>.
 * @see GrahamScan#getLowestPoint(java.util.List)
 */
-    protected static Set<Point> getSortedPointSet(List<Point> points) {
+    protected static Set<Point2D.Float> getSortedPointSet(List<Point2D.Float> points) {
 
-        final Point lowest = getLowestPoint(points);
+        final Point2D.Float lowest = getLowestPoint(points);
 
-        TreeSet<Point> set = new TreeSet<Point>(new Comparator<Point>() {
+        TreeSet<Point2D.Float> set = new TreeSet<Point2D.Float>(new Comparator<Point2D.Float>() {
             @Override
-            public int compare(Point a, Point b) {
+            public int compare(Point2D.Float a, Point2D.Float b) {
 
                 if(a == b || a.equals(b)) {
                     return 0;
@@ -249,11 +249,10 @@ public final class GrahamScan {
 * ordered points <code>a</code>, <code>b</code> and
 * <code>c</code>.
 */
-    protected static Turn getTurn(Point a, Point b, Point c) {
+    protected static Turn getTurn(Point2D.Float a, Point2D.Float b, Point2D.Float c) {
 
         // use longs to guard against int-over/underflow
-        long crossProduct = (((long)b.x - a.x) * ((long)c.y - a.y)) -
-                            (((long)b.y - a.y) * ((long)c.x - a.x));
+        float crossProduct = (((long)b.x - a.x) * ((long)c.y - a.y)) - (((long)b.y - a.y) * ((long)c.x - a.x));
 
         if(crossProduct > 0) {
             return Turn.COUNTER_CLOCKWISE;
