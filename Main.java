@@ -15,7 +15,7 @@ import java.sql.Statement;
 public class Main {
 
 	/**
-	 * @param args
+	 * @param args - data needed to connect with database
 	 * @throws SQLException
 	 */
 	public static void main(String[] args) throws SQLException {
@@ -24,70 +24,71 @@ public class Main {
 		int numberOfPointsPerMaxPolygon = 0;
 
 		// Variables needed to connect with database
-		// String database = args[0];
-		String database = "jdbc:mysql://localhost/convex?"
-				+ "user=root&password=tomaszek77";
+		String database = args[0];
 		Connection conn = DriverManager.getConnection(database);
 		Statement st = conn.createStatement();
 
-		// Select number unique of z
+		// Select number of unique z (number of polygons)
 		ResultSet nop = st.executeQuery("SELECT count(DISTINCT z) FROM Ftable");
-
 		if (nop.next()) {
 			numberOfPolygons = nop.getInt(1);
 		}
 
-		ResultSet nopfmp = st
-				.executeQuery("SELECT count(z) num FROM Ftable GROUP BY z ORDER BY num DESC LIMIT 1");
-
+		//Select the highest number of appearances of z (maximum points for polygon) 
+		ResultSet nopfmp = st.executeQuery("SELECT count(z) num FROM Ftable GROUP BY z ORDER BY num DESC LIMIT 1");
 		if (nopfmp.next()) {
 			numberOfPointsPerMaxPolygon = nopfmp.getInt(1);
 		}
 
+		// Arrays which keeps points for polygons (eg. point (x4,y4) is (SetOfPointsX[v][4],SetOfPointsY[v][4]) where v is polygon number
 		float[][] SetOfPointsX = new float[numberOfPolygons][numberOfPointsPerMaxPolygon];
 		float[][] SetOfPointsY = new float[numberOfPolygons][numberOfPointsPerMaxPolygon];
 
+		// Array for uniqe z variable
 		float[] functionZ = new float[numberOfPolygons];
 
-		// select unique z
-		ResultSet z = st.executeQuery("SELECT z FROM Ftable group by z");
-
+		// Select unique z
 		int counter = 0;
+		ResultSet z = st.executeQuery("SELECT z FROM Ftable group by z");
 		while (z.next()) {
 			functionZ[counter] = z.getFloat(1);
 			counter++;
 		}
 
-		int numberOfPolygon = 0;
+		int PolygonNumber = 0;
 
-		// Save
+		// Save points from database into an SetOfPointsX/Y Arrays
 		for (Float x : functionZ) {
-			ResultSet listOfPoints = st
-					.executeQuery("SELECT x,y FROM Ftable WHERE CAST(z AS DECIMAL(5,2)) = CAST("
-							+ x + "  AS DECIMAL(5,2))");
+			ResultSet listOfPoints = st.executeQuery("SELECT x,y FROM Ftable WHERE CAST(z AS DECIMAL(5,2)) = CAST("+ x + " AS DECIMAL(5,2))");
 			int j = 0;
 			while (listOfPoints.next()) {
-				SetOfPointsX[numberOfPolygon][j] = listOfPoints.getFloat(1);
-				SetOfPointsY[numberOfPolygon][j] = listOfPoints.getFloat(2);
+				SetOfPointsX[PolygonNumber][j] = listOfPoints.getFloat(1);
+				SetOfPointsY[PolygonNumber][j] = listOfPoints.getFloat(2);
 
 				j++;
 			}
-			numberOfPolygon++;
+			PolygonNumber++;
 		}
+		
 		// close db connection
 		conn.close();
 
+		// Array which keeps surface od all polygons
 		float[] surfaceOfPolygons = new float[numberOfPolygons];
 		
+		// Count polygons surface and add in into an array
 		for (int i = 0; i < numberOfPolygons; i++) {
 			// find the convex hull
 			List<Point2D.Float> convexHull = GrahamScan.getConvexHull(
 					SetOfPointsX[i], SetOfPointsY[i]);
 			surfaceOfPolygons[i]= Plain.countPolygonSurface(convexHull);
 		}
-
+		
+		//Sort array to get the largest surface
 		Arrays.sort(surfaceOfPolygons);
-		System.out.printf("%.5f", surfaceOfPolygons[numberOfPolygons-1]);
+		
+		//Print the largest number from array with surfaces
+		System.out.printf("%.5f", surfaceOfPolygons[surfaceOfPolygons.length-1]);
 
 	}
 
