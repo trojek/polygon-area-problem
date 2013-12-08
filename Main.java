@@ -1,3 +1,8 @@
+/** 
+ * @author Tomasz Rojek
+ * @version 1.0
+ *  */
+
 import java.awt.geom.Point2D;
 import java.util.*;
 import java.sql.Connection;
@@ -6,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/** Main class - control program */
 public class Main {
 
 	/**
